@@ -19,8 +19,18 @@ ESSENTIAL_PACKAGES=(
     "wget"
     "sudo"
     "build-essential"
-    "software-properties-common"
 )
+
+# Check Debian version to determine if software-properties-common is available
+DEBIAN_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f 2)
+
+# Only include software-properties-common for Debian versions before 13
+if [[ ${DEBIAN_VERSION%%.*} -lt 13 ]]; then
+    ESSENTIAL_PACKAGES+=("software-properties-common")
+    echo "Including software-properties-common for Debian $DEBIAN_VERSION"
+else
+    echo "Skipping software-properties-common for Debian $DEBIAN_VERSION (not available)"
+fi
 
 echo "Installing essential packages..."
 for package in "${ESSENTIAL_PACKAGES[@]}"; do
