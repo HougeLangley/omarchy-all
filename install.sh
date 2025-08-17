@@ -6,6 +6,51 @@ set -e
 export PATH="$HOME/.local/share/omarchy/bin:$PATH"
 OMARCHY_INSTALL=~/.local/share/omarchy/install
 
+# Detect distribution
+detect_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        case "$ID" in
+            arch)
+                DISTRO="arch"
+                ;;
+            debian|ubuntu)
+                DISTRO="debian"
+                ;;
+            *)
+                echo "Unsupported distribution: $ID"
+                exit 1
+                ;;
+        esac
+    else
+        echo "Cannot detect distribution"
+        exit 1
+    fi
+}
+
+# Package manager abstraction
+install_package() {
+    case "$DISTRO" in
+        arch)
+            sudo pacman -S --noconfirm --needed "$@"
+            ;;
+        debian)
+            sudo apt update && sudo apt install -y "$@"
+            ;;
+    esac
+}
+
+update_system() {
+    case "$DISTRO" in
+        arch)
+            yay -Syu --noconfirm --ignore uwsm
+            ;;
+        debian)
+            sudo apt update && sudo apt upgrade -y
+            ;;
+    esac
+}
+
 # Give people a chance to retry running the installation
 catch_errors() {
   echo -e "\n\e[31mOmarchy installation failed!\e[0m"
@@ -27,9 +72,19 @@ show_subtext() {
   echo
 }
 
+# Detect the distribution
+detect_distro
+
 # Install prerequisites
 source $OMARCHY_INSTALL/preflight/guard.sh
-source $OMARCHY_INSTALL/preflight/aur.sh
+case "$DISTRO" in
+    arch)
+        source $OMARCHY_INSTALL/preflight/aur.sh
+        ;;
+    debian)
+        source $OMARCHY_INSTALL/preflight/apt.sh
+        ;;
+esac
 source $OMARCHY_INSTALL/preflight/presentation.sh
 source $OMARCHY_INSTALL/preflight/migrations.sh
 
@@ -78,7 +133,7 @@ source $OMARCHY_INSTALL/apps/mimetypes.sh
 show_logo highlight
 show_subtext "Updating system packages [5/5]"
 sudo updatedb
-yay -Syu --noconfirm --ignore uwsm
+update_system
 
 # Reboot
 show_logo laseretch 920
