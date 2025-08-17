@@ -3,6 +3,9 @@
 # config.sh - Configuration setup for Omarchy
 # Compatible with both Arch and Debian systems
 
+# Ensure ~/.config directory exists before copying configs
+mkdir -p ~/.config
+
 # Copy over Omarchy configs
 cp -R ~/.local/share/omarchy/config/* ~/.config/
 
