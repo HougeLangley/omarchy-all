@@ -74,9 +74,44 @@ case "$DISTRO" in
             if apt list hyprland 2>/dev/null | grep -q "hyprland"; then
                 sudo apt install -y hyprland
             else
-                echo "Hyprland not available in repositories, installing from source..."
-                # Install dependencies first
+                echo "Hyprland not available in repositories, installing dependencies and compiling from source..."
+                # Install all necessary dependencies including aquamarine and udis86
                 sudo apt install -y build-essential cmake pkg-config libwayland-dev libegl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-composite0-dev libxcb-present-dev libxcb-sync-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libpixman-1-dev libjpeg-dev libpng-dev libwebp-dev libegl1-mesa-dev libgles2-mesa-dev libseat-dev libsystemd-dev libinput-dev libxcb-cursor-dev libxcb-errors-dev
+                
+                # Install additional dependencies needed for compilation
+                sudo apt install -y meson ninja-build libffi-dev libglib2.0-dev libpixman-1-dev libvulkan-dev libvulkan-dev libvulkan1 libvulkan-dev libvulkan1 libvulkan-dev libvulkan1 libvulkan-dev libvulkan1
+                
+                # Try to install aquamarine from repositories first
+                if apt list libaquamarine-dev 2>/dev/null | grep -q "libaquamarine-dev"; then
+                    sudo apt install -y libaquamarine-dev
+                else
+                    echo "Installing aquamarine from source..."
+                    # Clone and build aquamarine
+                    git clone https://github.com/hyprwm/aquamarine.git /tmp/aquamarine
+                    cd /tmp/aquamarine
+                    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
+                    make -j$(nproc)
+                    sudo make install
+                    cd -
+                    rm -rf /tmp/aquamarine
+                fi
+                
+                # Try to install udis86 from repositories first
+                if apt list libudis86-dev 2>/dev/null | grep -q "libudis86-dev"; then
+                    sudo apt install -y libudis86-dev
+                else
+                    echo "Installing udis86 from source..."
+                    # Clone and build udis86
+                    git clone https://github.com/canihavesomecoffee/udis86.git /tmp/udis86
+                    cd /tmp/udis86
+                    git checkout 5336633af70f3917760a6d441ff02d93477b0c86
+                    ./autogen.sh
+                    ./configure --enable-shared --disable-static
+                    make -j$(nproc)
+                    sudo make install
+                    cd -
+                    rm -rf /tmp/udis86
+                fi
                 
                 # Download and compile Hyprland
                 if command -v git &>/dev/null; then
