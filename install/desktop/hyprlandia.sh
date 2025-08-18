@@ -132,14 +132,13 @@ case "$DISTRO" in
                 # Clone and build hyprcursor
                 git clone https://github.com/hyprwm/hyprcursor.git /tmp/hyprcursor
                 cd /tmp/hyprcursor
-                # Clean any existing build directories that might cause conflicts
-                rm -rf hyprcursor-util build/
-                mkdir -p build
-                cd build
-                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+                # Remove the problematic hyprcursor-util directory if it exists
+                rm -rf hyprcursor-util/
+                # Build only the library, skip the problematic utility
+                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_UTILITIES=OFF .
                 make -j$(nproc)
                 sudo make install
-                cd ../..
+                cd -
                 rm -rf /tmp/hyprcursor
                 
                 # Try to install aquamarine from repositories first
