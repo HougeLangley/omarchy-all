@@ -124,6 +124,17 @@ case "$DISTRO" in
                 cd -
                 rm -rf /tmp/hyprlang
                 
+                # Install hyprcursor from source (not available in Debian 13 repositories)
+                echo "Installing hyprcursor from source..."
+                # Clone and build hyprcursor
+                git clone https://github.com/hyprwm/hyprcursor.git /tmp/hyprcursor
+                cd /tmp/hyprcursor
+                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
+                make -j$(nproc)
+                sudo make install
+                cd -
+                rm -rf /tmp/hyprcursor
+                
                 # Try to install aquamarine from repositories first
                 if apt list libaquamarine-dev 2>/dev/null | grep -q "libaquamarine-dev"; then
                     sudo apt install -y libaquamarine-dev
