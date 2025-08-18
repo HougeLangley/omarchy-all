@@ -65,34 +65,29 @@ case "$DISTRO" in
             echo "Older Debian version detected, installing Hyprland from alternative sources..."
         fi
         
-        # If Hyprland is not available in repositories, install from official sources
+        # If Hyprland is not available in repositories or if we want to ensure latest version,
+        # install from Debian repositories directly without external repos
         if ! command -v hyprland &>/dev/null; then
-            echo "Installing Hyprland from official repository..."
+            echo "Installing Hyprland from Debian repositories..."
             
-            # Add Hyprland repository for Debian
-            sudo apt install -y curl ca-certificates
-            curl -fsSL https://hyprland.org/hyprland.gpg | sudo gpg --dearmor -o /usr/share/keyrings/hyprland.gpg
-            echo "deb [signed-by=/usr/share/keyrings/hyprland.gpg] https://hyprland.org/debian/ bookworm main" | sudo tee /etc/apt/sources.list.d/hyprland.list
-            
-            # Update package lists again
-            sudo apt update
-            
-            # Try to install Hyprland again
+            # Try to install Hyprland directly from Debian repositories
             if apt list hyprland 2>/dev/null | grep -q "hyprland"; then
                 sudo apt install -y hyprland
             else
-                echo "Installing Hyprland from GitHub releases..."
+                echo "Hyprland not available in repositories, installing from source..."
                 # Install dependencies first
                 sudo apt install -y build-essential cmake pkg-config libwayland-dev libegl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-composite0-dev libxcb-present-dev libxcb-sync-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libpixman-1-dev libjpeg-dev libpng-dev libwebp-dev libegl1-mesa-dev libgles2-mesa-dev libseat-dev libsystemd-dev libinput-dev libxcb-cursor-dev libxcb-errors-dev
                 
                 # Download and compile Hyprland
                 if command -v git &>/dev/null; then
+                    # Clone the latest Hyprland release
                     git clone --recursive https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
                     cd /tmp/Hyprland
                     make all
                     sudo make install
                     cd -
                     rm -rf /tmp/Hyprland
+                    echo "Hyprland installed successfully from source"
                 else
                     echo "git not available, skipping Hyprland compilation"
                 fi
