@@ -44,20 +44,9 @@ EOF
         # Update package index again
         sudo apt update
         
-        # Install Docker Engine and related tools
-        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        # Install Docker Engine and related tools from official repository
+        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-buildx-plugin
         
-        # Install docker-compose separately if docker-compose-plugin is not sufficient
-        if ! command -v docker-compose &>/dev/null; then
-            sudo apt install -y docker-compose
-        fi
-        
-        # Install buildx plugin
-        if ! docker buildx version &>/dev/null; then
-            echo "Installing Docker Buildx plugin..."
-            sudo apt install -y docker-buildx
-        fi
-
         # Limit log size to avoid running out of disk
         sudo mkdir -p /etc/docker
         echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | sudo tee /etc/docker/daemon.json
