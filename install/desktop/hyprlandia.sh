@@ -113,6 +113,17 @@ case "$DISTRO" in
                     rm -rf /tmp/hyprutils
                 fi
                 
+                # Install hyprlang from source (not available in Debian 13 repositories)
+                echo "Installing hyprlang from source..."
+                # Clone and build hyprlang
+                git clone https://github.com/hyprwm/hyprlang.git /tmp/hyprlang
+                cd /tmp/hyprlang
+                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
+                make -j$(nproc)
+                sudo make install
+                cd -
+                rm -rf /tmp/hyprlang
+                
                 # Try to install aquamarine from repositories first
                 if apt list libaquamarine-dev 2>/dev/null | grep -q "libaquamarine-dev"; then
                     sudo apt install -y libaquamarine-dev
