@@ -23,7 +23,9 @@ if ! command -v nvim &>/dev/null; then
             # Check if neovim is available in default repositories
             if apt list neovim 2>/dev/null | grep -q "neovim"; then
                 # Install neovim and related tools
-                sudo apt install -y neovim lua5.1 lua-rocks tree-sitter-cli npm
+                # Fixed package name from lua-rocks to luarocks
+                # Using lua5.3 instead of lua5.1 for better compatibility
+                sudo apt install -y neovim lua5.3 luarocks tree-sitter-cli npm
             else
                 # Install from snap or alternative methods
                 echo "Installing neovim from alternative sources..."
