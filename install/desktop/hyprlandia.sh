@@ -79,7 +79,20 @@ case "$DISTRO" in
                 sudo apt install -y build-essential cmake pkg-config libwayland-dev libegl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-composite0-dev libxcb-present-dev libxcb-sync-dev libxcb-dri3-dev libxcb-dri2-0-dev libxcb-randr0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libpixman-1-dev libjpeg-dev libpng-dev libwebp-dev libegl1-mesa-dev libgles2-mesa-dev libseat-dev libsystemd-dev libinput-dev libxcb-cursor-dev libxcb-errors-dev
                 
                 # Install additional dependencies needed for compilation
-                sudo apt install -y meson ninja-build libffi-dev libglib2.0-dev libpixman-1-dev libvulkan-dev libvulkan-dev libvulkan1 libvulkan-dev libvulkan1 libvulkan-dev libvulkan1 libvulkan-dev libvulkan1
+                sudo apt install -y meson ninja-build libffi-dev libglib2.0-dev libpixman-1-dev libvulkan-dev
+                
+                # Try to install hyprwayland-scanner from repositories first
+                if apt list hyprwayland-scanner 2>/dev/null | grep -q "hyprwayland-scanner"; then
+                    sudo apt install -y hyprwayland-scanner
+                else
+                    echo "Installing hyprwayland-scanner from source..."
+                    # Clone and build hyprwayland-scanner
+                    git clone https://github.com/hyprwm/hyprwayland-scanner.git /tmp/hyprwayland-scanner
+                    cd /tmp/hyprwayland-scanner
+                    sudo make install
+                    cd -
+                    rm -rf /tmp/hyprwayland-scanner
+                fi
                 
                 # Try to install aquamarine from repositories first
                 if apt list libaquamarine-dev 2>/dev/null | grep -q "libaquamarine-dev"; then
