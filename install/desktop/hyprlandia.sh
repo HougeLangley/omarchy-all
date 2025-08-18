@@ -132,11 +132,11 @@ case "$DISTRO" in
                 # Clone and build hyprcursor
                 git clone https://github.com/hyprwm/hyprcursor.git /tmp/hyprcursor
                 cd /tmp/hyprcursor
-                # Remove the problematic hyprcursor-util directory if it exists
-                rm -rf hyprcursor-util/
-                # Build only the library, skip the problematic utility
-                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_UTILITIES=OFF .
-                make -j$(nproc)
+                # Clean any existing build directories that might cause conflicts
+                rm -rf CMakeCache.txt CMakeFiles/ hyprcursor-util/
+                # Build only the library, skip the problematic utility by setting the correct CMake option
+                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_UTIL=OFF .
+                make -j$(nproc) VERBOSE=1
                 sudo make install
                 cd -
                 rm -rf /tmp/hyprcursor
