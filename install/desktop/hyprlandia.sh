@@ -132,9 +132,17 @@ case "$DISTRO" in
                 # Clone and build hyprcursor
                 git clone https://github.com/hyprwm/hyprcursor.git /tmp/hyprcursor
                 cd /tmp/hyprcursor
-                # Configure and build directly in the source directory
-                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+                # Move the hyprcursor-util directory out of the way during build
+                if [ -d "hyprcursor-util" ] && [ ! -L "hyprcursor-util" ]; then
+                    mv hyprcursor-util _hyprcursor-util
+                fi
+                # Configure and build
+                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
                 make -j$(nproc)
+                # Move the hyprcursor-util directory back
+                if [ -d "_hyprcursor-util" ]; then
+                    mv _hyprcursor-util hyprcursor-util
+                fi
                 sudo make install
                 cd -
                 rm -rf /tmp/hyprcursor
