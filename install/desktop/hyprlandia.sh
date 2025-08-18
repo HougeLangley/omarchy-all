@@ -124,6 +124,9 @@ case "$DISTRO" in
                 cd -
                 rm -rf /tmp/hyprlang
                 
+                # Install dependencies for hyprcursor
+                sudo apt install -y libzip-dev libcairo2-dev librsvg2-dev libtomlplusplus-dev
+                
                 # Install hyprcursor from source (not available in Debian 13 repositories)
                 echo "Installing hyprcursor from source..."
                 # Clone and build hyprcursor
