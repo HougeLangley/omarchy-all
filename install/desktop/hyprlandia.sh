@@ -86,9 +86,11 @@ case "$DISTRO" in
                     sudo apt install -y hyprwayland-scanner
                 else
                     echo "Installing hyprwayland-scanner from source..."
-                    # Clone and build hyprwayland-scanner
+                    # Clone and build hyprwayland-scanner using CMake
                     git clone https://github.com/hyprwm/hyprwayland-scanner.git /tmp/hyprwayland-scanner
                     cd /tmp/hyprwayland-scanner
+                    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
+                    make -j$(nproc)
                     sudo make install
                     cd -
                     rm -rf /tmp/hyprwayland-scanner
