@@ -173,6 +173,17 @@ case "$DISTRO" in
                     rm -rf /tmp/udis86
                 fi
                 
+                # Install hyprgraphics dependency for Hyprland
+                echo "Installing hyprgraphics from source..."
+                # Clone and build hyprgraphics
+                git clone https://github.com/hyprwm/hyprgraphics.git /tmp/hyprgraphics
+                cd /tmp/hyprgraphics
+                cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build
+                cmake --build ./build --config Release --target all -j$(nproc 2>/dev/null || getconf _NPROCESSORS_CONF)
+                sudo cmake --install build
+                cd -
+                rm -rf /tmp/hyprgraphics
+                
                 # Download and compile Hyprland
                 if command -v git &>/dev/null; then
                     # Clone the latest Hyprland release
