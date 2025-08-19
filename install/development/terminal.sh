@@ -24,7 +24,6 @@ case "$DISTRO" in
             "curl:curl"
             "unzip:unzip"
             "inetutils:inetutils-tools"
-            "impala:impala"
             "fd:fd-find"
             "eza:eza"
             "fzf:fzf"
@@ -37,7 +36,6 @@ case "$DISTRO" in
             "fastfetch:fastfetch"
             "btop:btop"
             "man:man-db"
-            "tldr:tldr"
             "less:less"
             "whois:whois"
             "plocate:plocate"
@@ -66,6 +64,55 @@ case "$DISTRO" in
             sudo apt install -y "${DEBIAN_PACKAGES[@]}" 2>/dev/null || echo "Warning: Some packages may have failed to install"
         else
             echo "No valid packages found for installation"
+        fi
+        
+        # Install build dependencies for compiling missing tools
+        echo "Installing build dependencies for compiling missing tools..."
+        sudo apt install -y build-essential cargo python3-pip python3-venv \
+          python3-shtab python3-colorama python3-termcolor \
+          python3-build python3-installer python3-hatchling \
+          python3-sphinx-argparse python3-wheel python3-pytest || true
+        
+        # Install impala from source if not available in repositories
+        if ! command -v impala &>/dev/null; then
+            echo "Installing impala from source..."
+            # Create temporary directory for building
+            TMP_DIR=$(mktemp -d)
+            cd "$TMP_DIR"
+            
+            # Clone and build impala
+            git clone https://github.com/pythops/impala.git
+            cd impala
+            
+            # Build with cargo
+            if command -v cargo &>/dev/null; then
+                cargo build --release --frozen
+                sudo install -Dm 755 "target/release/impala" "/usr/local/bin/impala"
+                echo "impala installed successfully from source"
+            else
+                echo "cargo not available, skipping impala installation"
+            fi
+            
+            # Clean up
+            cd /
+            rm -rf "$TMP_DIR"
+        fi
+        
+        # Install tldr from source if not available in repositories
+        if ! command -v tldr &>/dev/null; then
+            echo "Installing tldr from source..."
+            # Use pip to install tldr python client
+            if command -v pip3 &>/dev/null; then
+                pip3 install --user tldr
+                # Add user bin to PATH if not already there
+                if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+                    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+                    export PATH="$HOME/.local/bin:$PATH"
+                fi
+                echo "tldr installed successfully from source"
+            else
+                echo "pip3 not available, skipping tldr installation"
+            fi
         fi
         
         # Additional setup for Debian
