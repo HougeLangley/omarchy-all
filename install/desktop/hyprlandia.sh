@@ -186,18 +186,28 @@ case "$DISTRO" in
                 cd -
                 rm -rf /tmp/hyprgraphics
                 
-                # Download and compile Hyprland
+                # Download and compile Hyprland using recommended CMake method
                 if command -v git &>/dev/null; then
                     # Clone the latest Hyprland release
                     git clone --recursive https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
                     cd /tmp/Hyprland
+                    
                     # Install missing dependencies for Hyprland
-                    sudo apt install -y libxcursor-dev libre2-dev libxcb-icccm4-dev libxcb-res0-dev
-                    make all
-                    sudo make install
+                    sudo apt install -y libxcursor-dev libre2-dev libxcb-icccm4-dev libxcb-res0-dev \
+                      libxcb-xinput-dev libxcb-xfixes-dev libxcb-shape-dev libxcb-randr-dev \
+                      libxcb-render-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev \
+                      libxkbcommon-dev libxkbcommon-x11-dev libpixman-1-dev libegl1-mesa-dev \
+                      libgles2-mesa-dev libdrm-dev libgbm-dev libinput-dev libsystemd-dev \
+                      libseat-dev libpam0g-dev libudev-dev libglm-dev libdisplay-info-dev
+                    
+                    # Use recommended CMake build method
+                    echo "Building Hyprland using recommended CMake method..."
+                    cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build
+                    cmake --build ./build --config Release --target all -j$(nproc 2>/dev/null || getconf _NPROCESSORS_CONF)
+                    sudo cmake --install build
                     cd -
                     rm -rf /tmp/Hyprland
-                    echo "Hyprland installed successfully from source"
+                    echo "Hyprland installed successfully from source using CMake"
                 else
                     echo "git not available, skipping Hyprland compilation"
                 fi
