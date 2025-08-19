@@ -191,6 +191,8 @@ case "$DISTRO" in
                     # Clone the latest Hyprland release
                     git clone --recursive https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
                     cd /tmp/Hyprland
+                    # Install missing dependencies for Hyprland
+                    sudo apt install -y libxcursor-dev libre2-dev
                     make all
                     sudo make install
                     cd -
