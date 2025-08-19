@@ -192,9 +192,11 @@ case "$DISTRO" in
                     git clone --recursive https://github.com/hyprwm/Hyprland.git /tmp/Hyprland
                     cd /tmp/Hyprland
                     
-                    # Install missing dependencies for Hyprland
+                    # Install missing dependencies for Hyprland with Debian 13 package names
+                    echo "Installing Hyprland dependencies for Debian 13..."
+                    # For Debian 13 (Trixie/testing), some XCB packages have changed names with '0' suffix
                     sudo apt install -y libxcursor-dev libre2-dev libxcb-icccm4-dev libxcb-res0-dev \
-                      libxcb-xinput-dev libxcb-xfixes-dev libxcb-shape-dev libxcb-randr-dev \
+                      libxcb-xinput-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev \
                       libxcb-render-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev \
                       libxkbcommon-dev libxkbcommon-x11-dev libpixman-1-dev libegl1-mesa-dev \
                       libgles2-mesa-dev libdrm-dev libgbm-dev libinput-dev libsystemd-dev \
