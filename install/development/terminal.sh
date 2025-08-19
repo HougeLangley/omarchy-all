@@ -71,7 +71,7 @@ case "$DISTRO" in
         sudo apt install -y build-essential cargo rustc python3-pip python3-venv \
           python3-shtab python3-colorama python3-termcolor \
           python3-build python3-installer python3-hatchling \
-          python3-sphinx-argparse python3-wheel python3-pytest || true
+          python3-sphinx-argparse python3-wheel python3-pytest pipx || true
         
         # Install impala from source if not available in repositories
         if ! command -v impala &>/dev/null; then
@@ -106,17 +106,23 @@ case "$DISTRO" in
         # Install tldr from source if not available in repositories
         if ! command -v tldr &>/dev/null; then
             echo "Installing tldr from source..."
-            # Use pip to install tldr python client
-            if command -v pip3 &>/dev/null; then
-                pip3 install --user tldr
-                # Add user bin to PATH if not already there
-                if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-                    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-                    export PATH="$HOME/.local/bin:$PATH"
-                fi
-                echo "tldr installed successfully from source"
+            # Use pipx to install tldr python client (recommended approach for Debian)
+            if command -v pipx &>/dev/null; then
+                pipx install tldr
+                echo "tldr installed successfully from source using pipx"
             else
-                echo "pip3 not available, skipping tldr installation"
+                # Fallback to pip with --user flag if pipx is not available
+                if command -v pip3 &>/dev/null; then
+                    pip3 install --user tldr
+                    # Add user bin to PATH if not already there
+                    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+                        echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+                        export PATH="$HOME/.local/bin:$PATH"
+                    fi
+                    echo "tldr installed successfully from source using pip --user"
+                else
+                    echo "Neither pipx nor pip3 available, skipping tldr installation"
+                fi
             fi
         fi
         
