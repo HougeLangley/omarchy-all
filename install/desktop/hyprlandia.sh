@@ -132,18 +132,10 @@ case "$DISTRO" in
                 # Clone and build hyprcursor
                 git clone https://github.com/hyprwm/hyprcursor.git /tmp/hyprcursor
                 cd /tmp/hyprcursor
-                # Move the hyprcursor-util directory out of the way during build
-                if [ -d "hyprcursor-util" ] && [ ! -L "hyprcursor-util" ]; then
-                    mv hyprcursor-util _hyprcursor-util
-                fi
-                # Configure and build
-                cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
-                make -j$(nproc)
-                # Move the hyprcursor-util directory back
-                if [ -d "_hyprcursor-util" ]; then
-                    mv _hyprcursor-util hyprcursor-util
-                fi
-                sudo make install
+                # Use out-of-source build as recommended by the author
+                cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build
+                cmake --build ./build --config Release --target all -j$(nproc 2>/dev/null || getconf _NPROCESSORS_CONF)
+                sudo cmake --install build
                 cd -
                 rm -rf /tmp/hyprcursor
                 
