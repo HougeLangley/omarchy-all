@@ -175,6 +175,8 @@ case "$DISTRO" in
                 
                 # Install hyprgraphics dependency for Hyprland
                 echo "Installing hyprgraphics from source..."
+                # Install libmagic dependency first
+                sudo apt install -y libmagic-dev
                 # Clone and build hyprgraphics
                 git clone https://github.com/hyprwm/hyprgraphics.git /tmp/hyprgraphics
                 cd /tmp/hyprgraphics
