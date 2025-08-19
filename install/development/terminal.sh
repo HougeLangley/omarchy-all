@@ -68,7 +68,7 @@ case "$DISTRO" in
         
         # Install build dependencies for compiling missing tools
         echo "Installing build dependencies for compiling missing tools..."
-        sudo apt install -y build-essential cargo python3-pip python3-venv \
+        sudo apt install -y build-essential cargo rustc python3-pip python3-venv \
           python3-shtab python3-colorama python3-termcolor \
           python3-build python3-installer python3-hatchling \
           python3-sphinx-argparse python3-wheel python3-pytest || true
@@ -80,13 +80,18 @@ case "$DISTRO" in
             TMP_DIR=$(mktemp -d)
             cd "$TMP_DIR"
             
-            # Clone and build impala
+            # Clone impala
             git clone https://github.com/pythops/impala.git
             cd impala
             
-            # Build with cargo
+            # Fetch dependencies first to avoid --frozen issues
             if command -v cargo &>/dev/null; then
-                cargo build --release --frozen
+                cargo fetch --target "$(rustc -vV | sed -n 's/host: //p')"
+                
+                # Build without --frozen flag to allow network access if needed
+                cargo build --release
+                
+                # Install the built binary
                 sudo install -Dm 755 "target/release/impala" "/usr/local/bin/impala"
                 echo "impala installed successfully from source"
             else
